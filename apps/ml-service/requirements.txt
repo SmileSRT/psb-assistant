@@ -1,0 +1,8 @@
+fastapi==0.99.1
+uvicorn==0.24.0
+feast==0.34.1
+pandas==1.5.3
+pydantic==1.10.13
+python-dotenv==1.0.0 
+dask==2023.3.2
+python-multipart==0.0.6 

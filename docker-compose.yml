@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  client:
+    build: ./apps/ui-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - inference-service
+    networks:
+      - ml-service-network
+
+  ml-service:
+    build: ./apps/ml-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./feature_repo:/app/feature_repo
+    environment:
+      - FEAST_USAGE=False
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - ml-service-network
+
+  inference-service:
+    build: ./apps/inference-service
+    ports:
+      - "8080:8080"
+    environment:
+      - FEAST_SERVICE_URL=http://ml-service:8000/feast/features
+    depends_on:
+      ml-service:
+        condition: service_healthy
+    networks:
+      - ml-service-network
+
+networks:
+  ml-service-network:
+    driver: bridge
